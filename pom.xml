@@ -20,7 +20,7 @@
   </parent>
 
   <artifactId>vertx-core</artifactId>
-  <version>4.2.7</version>
+  <version>4.2.7-SQL1225</version>
 
   <name>Vert.x Core</name>
 
