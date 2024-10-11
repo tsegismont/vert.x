@@ -10,20 +10,54 @@
  */
 package io.vertx.core.impl.transports;
 
-import io.netty.channel.*;
+import io.netty.bootstrap.Bootstrap;
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFactory;
+import io.netty.channel.IoHandlerFactory;
+import io.netty.channel.ServerChannel;
 import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.InternetProtocolFamily;
-import io.netty.channel.socket.nio.NioDatagramChannel;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.channel.socket.nio.*;
+import io.netty.util.internal.PlatformDependent;
+import io.vertx.core.datagram.DatagramSocketOptions;
+import io.vertx.core.net.ClientOptionsBase;
+import io.vertx.core.net.NetServerOptions;
+import io.vertx.core.net.impl.SocketAddressImpl;
 import io.vertx.core.spi.transport.Transport;
+
+import java.net.SocketAddress;
+import java.net.UnixDomainSocketAddress;
+import java.nio.file.Path;
 
 public class JDKTransport implements Transport {
   /**
    * The JDK transport, always there.
    */
   public static final Transport INSTANCE = new JDKTransport();
+
+  @Override
+  public boolean supportsDomainSockets() {
+    return PlatformDependent.javaVersion() >= 16;
+  }
+
+  @Override
+  public SocketAddress convert(io.vertx.core.net.SocketAddress address) {
+    if (address.isDomainSocket()) {
+      return UnixDomainSocketAddress.of(Path.of(address.path()));
+    } else {
+      return Transport.super.convert(address);
+    }
+  }
+
+  @Override
+  public io.vertx.core.net.SocketAddress convert(SocketAddress address) {
+    if (address instanceof UnixDomainSocketAddress) {
+      return new SocketAddressImpl(((UnixDomainSocketAddress) address).getPath().toAbsolutePath().toString());
+    }
+    return Transport.super.convert(address);
+  }
 
   @Override
   public IoHandlerFactory ioHandlerFactory() {
@@ -47,14 +81,15 @@ public class JDKTransport implements Transport {
 
   public ChannelFactory<? extends Channel> channelFactory(boolean domainSocket) {
     if (domainSocket) {
-      throw new IllegalArgumentException("The Vertx instance must be created with the preferNativeTransport option set to true to create domain sockets");
+      return NioDomainSocketChannel::new;
+    } else {
+      return NioSocketChannel::new;
     }
-    return NioSocketChannel::new;
   }
 
   public ChannelFactory<? extends ServerChannel> serverChannelFactory(boolean domainSocket) {
     if (domainSocket) {
-      throw new IllegalArgumentException();
+      return NioServerDomainSocketChannel::new;
     }
     return NioServerSocketChannel::new;
   }

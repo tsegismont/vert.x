@@ -186,7 +186,7 @@ public abstract class HttpTest extends HttpTestBase {
   @Test
   public void testListenDomainSocketAddress() throws Exception {
     Vertx vx = Vertx.vertx(new VertxOptions().setPreferNativeTransport(true));
-    Assume.assumeTrue("Native transport must be enabled", vx.isNativeTransportEnabled());
+    //Assume.assumeTrue("Native transport must be enabled", vx.isNativeTransportEnabled());
     Assume.assumeTrue("Transport must support domain sockets", ((VertxInternal) vx).transport().supportsDomainSockets());
     int len = 3;
     waitFor(len * len);
