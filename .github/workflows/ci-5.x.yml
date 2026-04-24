@@ -2,14 +2,10 @@ name: vert.x (5.x)
 on:
   push:
     branches:
-      - master
       - enable-io-uring-ci
   pull_request:
     branches:
-      - master
       - enable-io-uring-ci
-  schedule:
-    - cron: '0 5 * * *'
 jobs:
   CI-CD:
     uses: ./.github/workflows/ci-matrix-5.x.yml
