@@ -29,4 +29,9 @@ jobs:
           java-version: ${{ inputs.jdk }}
           distribution: temurin
       - name: Run tests
-        run: mvn -s .github/maven-ci-settings.xml -q clean verify -B ${{ inputs.profile }}
+        run: |
+          # Raise memlock to 16M (for io_uring testing)
+          sudo prlimit --pid $$ --memlock=16777216:16777216
+          # Verify the change
+          ulimit -l
+          mvn -s .github/maven-ci-settings.xml -q clean verify -B ${{ inputs.profile }}
