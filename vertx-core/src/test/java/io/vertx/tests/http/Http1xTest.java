@@ -37,7 +37,6 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.core.net.*;
 import io.vertx.core.parsetools.RecordParser;
 import io.vertx.core.streams.WriteStream;
-import io.vertx.core.transport.Transport;
 import io.vertx.test.core.CheckingSender;
 import io.vertx.test.core.Repeat;
 import io.vertx.test.core.TestUtils;
@@ -1075,7 +1074,6 @@ public class Http1xTest extends HttpTest {
 
   @Test
   public void testPipeliningOrder() throws Exception {
-    Assume.assumeFalse(TRANSPORT == Transport.IO_URING);
     client.close();
     client = vertx.createHttpClient(new HttpClientOptions().setKeepAlive(true).setPipelining(true), new PoolOptions().setHttp1MaxSize(1));
     int requests = 100;
