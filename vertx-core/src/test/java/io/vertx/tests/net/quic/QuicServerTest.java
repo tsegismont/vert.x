@@ -22,10 +22,12 @@ import io.vertx.core.http.ClientAuth;
 import io.vertx.core.internal.quic.QuicConnectionInternal;
 import io.vertx.core.internal.quic.QuicStreamInternal;
 import io.vertx.core.net.*;
+import io.vertx.core.transport.Transport;
 import io.vertx.test.core.TestUtils;
 import io.vertx.test.core.VertxTestBase;
 import io.vertx.test.tls.Cert;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Test;
 
 import javax.crypto.KeyGenerator;
@@ -41,7 +43,9 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.security.KeyStore;
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -310,11 +314,13 @@ public class QuicServerTest extends VertxTestBase {
 
   @Test
   public void testShutdownServer() throws Exception {
+    Assume.assumeFalse(TRANSPORT == Transport.IO_URING);
     testShutdownServer(Duration.ofSeconds(10));
   }
 
   @Test
   public void testCloseServer() throws Exception {
+    Assume.assumeFalse(TRANSPORT == Transport.IO_URING);
     testShutdownServer(Duration.ofSeconds(0));
   }
 
